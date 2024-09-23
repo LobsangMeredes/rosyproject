@@ -1,5 +1,5 @@
 import create from 'zustand';
-import axios from 'axios';
+import apiClient from 'config/AxiosConfig'; // Usamos el cliente Axios centralizado
 
 interface Product {
   id: number;
@@ -32,10 +32,10 @@ interface RentalStore {
   loading: boolean;
   error: string | null;
   fetchRentals: () => Promise<void>;
-  getRentalProducts: (rentalId: number) => Promise<void>; // Método para obtener productos
+  getRentalProducts: (rentalId: number) => Promise<void>;
   completeRental: (id: number) => Promise<void>;
   updateRental: (id: number, data: Partial<Rental>) => Promise<void>;
-  createRental: (data: CreateRentalDto) => Promise<Rental>; // Retornamos el objeto Rental
+  createRental: (data: CreateRentalDto) => Promise<Rental>;
   deleteRental: (id: number) => Promise<void>;
 }
 
@@ -43,18 +43,16 @@ const useRentalStore = create<RentalStore>((set) => ({
   rentals: [],
   activeRentals: [],
   historicalRentals: [],
-  rentalProducts: [], // Inicialmente vacío
+  rentalProducts: [],
   loading: false,
   error: null,
 
-  // Obtener todas las rentas y clasificarlas en activas e históricas
   fetchRentals: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get('http://localhost:3001/rentals');
+      const response = await apiClient.get('/rentals'); // Usamos apiClient
       const rentals = response.data;
 
-      // Filtrar rentas activas e históricas
       const activeRentals = rentals.filter((rental: Rental) => rental.status !== 'completed');
       const historicalRentals = rentals.filter((rental: Rental) => rental.status === 'completed');
 
@@ -64,61 +62,55 @@ const useRentalStore = create<RentalStore>((set) => ({
     }
   },
 
-  // Obtener los productos asociados a una renta
   getRentalProducts: async (rentalId: number) => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get(`http://localhost:3001/rentals/${rentalId}/products`);
+      const response = await apiClient.get(`/rentals/${rentalId}/products`); // Usamos apiClient
       set({ rentalProducts: response.data, loading: false });
     } catch (error: any) {
       set({ error: 'Error fetching rental products', loading: false });
     }
   },
 
-  // Completar una renta y actualizar el estado
   completeRental: async (id: number) => {
     set({ loading: true, error: null });
     try {
-      await axios.patch(`http://localhost:3001/rentals/${id}/complete`);
-      await useRentalStore.getState().fetchRentals(); // Refrescar la lista de rentas
+      await apiClient.patch(`/rentals/${id}/complete`); // Usamos apiClient
+      await useRentalStore.getState().fetchRentals();
       set({ loading: false });
     } catch (error: any) {
       set({ error: 'Error completing rental', loading: false });
     }
   },
 
-  // Extender la fecha de una renta
   updateRental: async (id: number, data: Partial<Rental>) => {
     set({ loading: true, error: null });
     try {
-      await axios.patch(`http://localhost:3001/rentals/${id}`, data);
-      await useRentalStore.getState().fetchRentals(); // Refrescar la lista de rentas
+      await apiClient.patch(`/rentals/${id}`, data); // Usamos apiClient
+      await useRentalStore.getState().fetchRentals();
       set({ loading: false });
     } catch (error: any) {
       set({ error: 'Error updating rental', loading: false });
     }
   },
 
-  // Crear una nueva renta y retornar el objeto creado
   createRental: async (data: CreateRentalDto) => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.post('http://localhost:3001/rentals', data);
-      
+      const response = await apiClient.post('/rentals', data); // Usamos apiClient
       set({ loading: false });
-      return response.data; // Asegúrate de retornar la data (el objeto creado)
+      return response.data;
     } catch (error: any) {
       set({ error: 'Error creating rental', loading: false });
-      throw error; // Lanza el error para manejarlo en el frontend
+      throw error;
     }
   },
 
-  // Eliminar una renta
   deleteRental: async (id: number) => {
     set({ loading: true, error: null });
     try {
-      await axios.delete(`http://localhost:3001/rentals/${id}`);
-      await useRentalStore.getState().fetchRentals(); // Refrescar la lista de rentas
+      await apiClient.delete(`/rentals/${id}`); // Usamos apiClient
+      await useRentalStore.getState().fetchRentals();
       set({ loading: false });
     } catch (error: any) {
       set({ error: 'Error deleting rental', loading: false });

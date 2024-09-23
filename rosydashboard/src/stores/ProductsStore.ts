@@ -1,12 +1,11 @@
 import create from 'zustand';
-import axios from 'axios';
-import { useCategoriesStore } from './CategoriesStore'; // Importamos el store de categorías
+import apiClient from 'config/AxiosConfig'; // Usamos el cliente Axios centralizado
 
 interface Product {
   id: number;
   inventoryCode: string;
   name: string;
-  categoryId: number;  // Usamos categoryId para relacionar con categorías
+  categoryId: number;  // Relacionado con categorías
   type: string;
   gender: string;
   description?: string;
@@ -43,12 +42,12 @@ const useProductStore = create<ProductStore>((set) => ({
   productDetails: null,
   loading: false,
   error: null,
-  productsByCategoryCount: {}, // Almacenamos el conteo de productos por categoría
+  productsByCategoryCount: {},
 
   fetchProducts: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get('http://localhost:3001/products');
+      const response = await apiClient.get('/products'); // Usamos apiClient
       set({ products: response.data, loading: false });
     } catch (error) {
       set({ error: 'Error fetching products', loading: false });
@@ -58,7 +57,7 @@ const useProductStore = create<ProductStore>((set) => ({
   fetchProductById: async (id: number) => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get(`http://localhost:3001/products/${id}`);
+      const response = await apiClient.get(`/products/${id}`); // Usamos apiClient
       set({ productDetails: response.data, loading: false });
     } catch (error) {
       set({ error: 'Error fetching product details', loading: false });
@@ -68,18 +67,17 @@ const useProductStore = create<ProductStore>((set) => ({
   fetchProductStatus: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get('http://localhost:3001/products/status-details');
+      const response = await apiClient.get('/products/status-details'); // Usamos apiClient
       set({ products: response.data.productDetails, loading: false });
     } catch (error) {
       set({ error: 'Error fetching product status', loading: false });
     }
   },
 
-  // Nuevo método para obtener el conteo de productos por categoría
   fetchProductsCountByCategory: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get('http://localhost:3001/products/count-by-category');
+      const response = await apiClient.get('/products/count-by-category'); // Usamos apiClient
       set({ productsByCategoryCount: response.data, loading: false });
     } catch (error) {
       set({ error: 'Error fetching products count by category', loading: false });
@@ -89,27 +87,23 @@ const useProductStore = create<ProductStore>((set) => ({
   createProduct: async (product: ProductCreateDto) => {
     set({ loading: true, error: null });
     try {
-      // Aseguramos que quantity sea un número
       const productToSend = { 
         ...product, 
         quantity: Number(product.quantity) 
       };
-      
-      console.log('Datos enviados al backend:', productToSend);  // Log para verificar los datos corregidos
-      await axios.post('http://localhost:3001/products', productToSend);
+      console.log('Datos enviados al backend:', productToSend);
+      await apiClient.post('/products', productToSend); // Usamos apiClient
       await useProductStore.getState().fetchProducts();
     } catch (error: any) {
       console.error('Detalles del error:', error.response?.data || error.message);
       set({ error: 'Error creating product', loading: false });
     }
   },
-  
-  
 
   updateProduct: async (id: number, product: ProductCreateDto) => {
     set({ loading: true, error: null });
     try {
-      await axios.patch(`http://localhost:3001/products/${id}`, product);
+      await apiClient.patch(`/products/${id}`, product); // Usamos apiClient
       await useProductStore.getState().fetchProducts();
     } catch (error) {
       set({ error: 'Error updating product', loading: false });
@@ -119,7 +113,7 @@ const useProductStore = create<ProductStore>((set) => ({
   deleteProduct: async (id: number) => {
     set({ loading: true, error: null });
     try {
-      await axios.delete(`http://localhost:3001/products/${id}`);
+      await apiClient.delete(`/products/${id}`); // Usamos apiClient
       await useProductStore.getState().fetchProducts();
     } catch (error) {
       set({ error: 'Error deleting product', loading: false });

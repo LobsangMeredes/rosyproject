@@ -1,5 +1,5 @@
 import create from 'zustand';
-import axios from 'axios';
+import apiClient from 'config/AxiosConfig'; // Importamos el cliente centralizado
 
 interface Client {
   id: number;
@@ -47,11 +47,10 @@ const useInvoiceStore = create<InvoiceStore>((set) => ({
   error: null,
 
   // Obtener todas las facturas
-// fetchInvoices en InvoiceStore
-fetchInvoices: async () => {
+  fetchInvoices: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get('http://localhost:3001/invoices');
+      const response = await apiClient.get('/invoices'); // Usamos apiClient
       console.log(response.data); // Para ver los datos que devuelve la API
       set({ invoices: response.data, loading: false });
     } catch (error: any) {
@@ -59,7 +58,6 @@ fetchInvoices: async () => {
       set({ error: 'Error fetching invoices', loading: false });
     }
   },
-  
 
   // Crear una factura asociada a una renta
   createInvoice: async (rentalId: number, clientId: number, total: number) => {
@@ -70,8 +68,8 @@ fetchInvoices: async () => {
         clientId,
         total,
       };
-      const response = await axios.post('http://localhost:3001/invoices', invoiceData);
-      await useInvoiceStore.getState().fetchInvoices();
+      const response = await apiClient.post('/invoices', invoiceData); // Usamos apiClient
+      await useInvoiceStore.getState().fetchInvoices(); // Refrescamos la lista de facturas
       set({ loading: false });
       return response.data;
     } catch (error: any) {
@@ -85,7 +83,7 @@ fetchInvoices: async () => {
   fetchInvoiceById: async (id: number) => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get(`http://localhost:3001/invoices/${id}`);
+      const response = await apiClient.get(`/invoices/${id}`); // Usamos apiClient
       set({ loading: false });
       return response.data;
     } catch (error: any) {
@@ -95,11 +93,12 @@ fetchInvoices: async () => {
     }
   },
 
+  // Actualizar una factura
   updateInvoice: async (id: number, data: Partial<Invoice>) => {
     set({ loading: true, error: null });
     try {
-      await axios.patch(`http://localhost:3001/invoices/${id}`, data);
-      await useInvoiceStore.getState().fetchInvoices();
+      await apiClient.patch(`/invoices/${id}`, data); // Usamos apiClient
+      await useInvoiceStore.getState().fetchInvoices(); // Refrescamos la lista de facturas
       set({ loading: false });
     } catch (error: any) {
       console.error('Error updating invoice:', error);

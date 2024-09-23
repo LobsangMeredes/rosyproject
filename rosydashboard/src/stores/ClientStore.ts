@@ -1,5 +1,5 @@
 import create from 'zustand';
-import axios from 'axios';
+import apiClient from 'config/AxiosConfig';
 
 interface Client {
   id: number;
@@ -42,7 +42,7 @@ const useClientStore = create<ClientStore>((set) => ({
   fetchClients: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get('http://localhost:3001/clients');
+      const response = await apiClient.get('/clients');
       set({ clients: response.data, loading: false });
     } catch (error: any) {
       set({ error: 'Error fetching clients', loading: false });
@@ -53,7 +53,7 @@ const useClientStore = create<ClientStore>((set) => ({
   fetchClientById: async (id: number) => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get(`http://localhost:3001/clients/${id}`);
+      const response = await apiClient.get(`/clients/${id}`);
       set({ clientDetails: response.data, loading: false });
     } catch (error: any) {
       set({ error: 'Error fetching client details', loading: false });
@@ -64,7 +64,7 @@ const useClientStore = create<ClientStore>((set) => ({
   createClient: async (data: CreateClientDto) => {
     set({ loading: true, error: null });
     try {
-      await axios.post('http://localhost:3001/clients', data);
+      await apiClient.post('/clients', data);
       await useClientStore.getState().fetchClients(); // Refrescar la lista de clientes
       set({ loading: false });
     } catch (error: any) {
@@ -76,7 +76,7 @@ const useClientStore = create<ClientStore>((set) => ({
   updateClient: async (id: number, data: UpdateClientDto) => {
     set({ loading: true, error: null });
     try {
-      await axios.patch(`http://localhost:3001/clients/${id}`, data);
+      await apiClient.patch(`/clients/${id}`, data);
       await useClientStore.getState().fetchClients(); // Refrescar la lista de clientes
       set({ loading: false });
     } catch (error: any) {
@@ -88,7 +88,7 @@ const useClientStore = create<ClientStore>((set) => ({
   deleteClient: async (id: number) => {
     set({ loading: true, error: null });
     try {
-      await axios.delete(`http://localhost:3001/clients/${id}`);
+      await apiClient.delete(`/clients/${id}`);
       await useClientStore.getState().fetchClients(); // Refrescar la lista de clientes
       set({ loading: false });
     } catch (error: any) {

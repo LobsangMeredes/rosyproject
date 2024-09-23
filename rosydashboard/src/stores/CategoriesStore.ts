@@ -1,5 +1,5 @@
 import create from 'zustand';
-import axios from 'axios';
+import apiClient from 'config/AxiosConfig';
 
 interface Category {
   id: number;
@@ -26,7 +26,7 @@ export const useCategoriesStore = create<CategoriesState>((set) => ({
   fetchCategories: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get('http://localhost:3001/categories');
+      const response = await apiClient.get('/categories');
       set({ categories: response.data, loading: false });
     } catch (error) {
       set({ error: 'Error fetching categories', loading: false });
@@ -37,7 +37,7 @@ export const useCategoriesStore = create<CategoriesState>((set) => ({
   addCategory: async (category) => {
     set({ loading: true });
     try {
-      const response = await axios.post('http://localhost:3001/categories', category);
+      const response = await apiClient.post('/categories', category);
       set((state) => ({
         categories: [...state.categories, response.data],
         loading: false,
@@ -51,7 +51,7 @@ export const useCategoriesStore = create<CategoriesState>((set) => ({
   updateCategory: async (id, updatedData) => {
     set({ loading: true });
     try {
-      const response = await axios.patch(`http://localhost:3001/categories/${id}`, updatedData);
+      const response = await apiClient.patch(`/categories/${id}`, updatedData);
       set((state) => ({
         categories: state.categories.map((category) =>
           category.id === id ? response.data : category
@@ -67,7 +67,7 @@ export const useCategoriesStore = create<CategoriesState>((set) => ({
   removeCategory: async (id) => {
     set({ loading: true });
     try {
-      await axios.delete(`http://localhost:3001/categories/${id}`);
+      await apiClient.delete(`/categories/${id}`);
       set((state) => ({
         categories: state.categories.filter((category) => category.id !== id),
         loading: false,
