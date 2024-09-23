@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Crear una instancia de Axios
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3001',  // URL de tu backend en App Engine
+  baseURL: 'http://34.41.100.138:3001',  // URL de tu backend en App Engine
   timeout: 40000, // Tiempo de espera en milisegundos (opcional)
   headers: {
     'Content-Type': 'application/json', // Tipo de contenido que estás enviando
