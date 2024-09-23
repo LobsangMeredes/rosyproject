@@ -1,0 +1,25 @@
+runtime: nodejs18
+
+instance_class: F4_1G  # Clase de instancia más potente temporalmente
+
+env_variables:
+  DB_HOST: "/cloudsql/certain-grammar-432108-g1:us-central1:rosybadiadb"
+  DB_USER: "root"
+  DB_PASSWORD: "root"
+  DB_NAME: "rosy_productsandcategories"
+  # Usando 127.0.0.1 en lugar de localhost para la conexión a la base de datos
+  DATABASE_URL: "mysql://${DB_USER}:${DB_PASSWORD}@127.0.0.1/${DB_NAME}?socket=/cloudsql/certain-grammar-432108-g1:us-central1:rosybadiadb"
+  PORT: "8081"  # Reflejando que la app corre en el puerto 8081
+  PRISMA_CLIENT_ENGINE_TYPE: "library"  # Cambiado de binary a library
+
+beta_settings:
+  cloud_sql_instances: "certain-grammar-432108-g1:us-central1:rosybadiadb"
+
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_instances: 1
+  max_instances: 4  # Aumentar temporalmente para mejorar el manejo de la carga
+
+handlers:
+  - url: /.*
+    script: auto

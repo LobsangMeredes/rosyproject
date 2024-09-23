@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]  // O puedes usar: "linux-musl-openssl-3.0.x"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Categories {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  products    Products[] // Relación uno a muchos
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Products {
+  id                Int       @id @default(autoincrement())
+  inventoryCode     String    @unique
+  name              String
+  categoryId        Int
+  category          Categories @relation(fields: [categoryId], references: [id])
+  type              Type
+  gender            Gender
+  description       String?
+  quantity          Int       // Cantidad total del producto
+  availableCount    Int       @default(0) // Cantidad disponible
+  size              Size?
+  condition         Condition?
+  area              String?
+  box               String?
+  status            Status    @default(disponible)
+  acquisitionDate   DateTime
+  rentals           ProductsOnRentals[] // Relación muchos a muchos con Rentals
+}
+
+model Rentals {
+  id           Int          @id @default(autoincrement())
+  startDate    DateTime
+  endDate      DateTime
+  status       RentalStatus @default(active)
+  products     ProductsOnRentals[] // Relación muchos a muchos con Products
+  clientId     Int?
+  client       Clients?   @relation(fields: [clientId], references: [id]) // Relación con cliente
+  invoice      Invoices?  // Relación uno a uno con facturas
+}
+
+model RentalHistory {
+  id           Int        @id @default(autoincrement())
+  rentalId     Int        // Referencia al alquiler original
+  startDate    DateTime
+  endDate      DateTime
+  status       RentalStatus
+  clientId     Int
+  client       Clients   @relation(fields: [clientId], references: [id])
+  products     Json      // Almacenar productos como JSON
+  archivedAt   DateTime  @default(now())  // Fecha de archivado
+}
+
+model ProductsOnRentals {
+  product   Products @relation(fields: [productId], references: [id])
+  productId Int
+  rental    Rentals  @relation(fields: [rentalId], references: [id])
+  rentalId  Int
+
+  @@id([productId, rentalId])
+}
+
+
+model Clients {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?
+  rentals   Rentals[] // Relación uno a muchos
+  invoices  Invoices[] // Relación uno a muchos con facturas
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  RentalHistory RentalHistory[]
+}
+
+model Invoices {
+  id        Int       @id @default(autoincrement())
+  rentalId  Int       @unique
+  rental    Rentals   @relation(fields: [rentalId], references: [id])
+  clientId  Int
+  client    Clients   @relation(fields: [clientId], references: [id])
+  total     Float
+  issuedAt  DateTime  @default(now())
+  status    InvoiceStatus @default(pending)
+}
+
+enum Status {
+  disponible
+  alquilado
+}
+
+enum Gender {
+  masculino
+  femenino
+  unisex
+}
+
+enum Condition {
+  nuevo
+  usado
+}
+
+enum Size {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+  XXXL
+  unico
+}
+
+enum Type {
+  ropa
+  calzado
+  accesorio
+  otro
+}
+
+enum RentalStatus {
+  active
+  completed
+}
+
+enum InvoiceStatus {
+  pending
+  paid
+}

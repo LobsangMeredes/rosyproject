@@ -1,0 +1,21 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: ./rosydashboard
+    ports:
+      - "3000:80"  # Expone el frontend en el puerto 3000
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./productsandcategories
+    ports:
+      - "3001:3001"  # Expone el backend en el puerto 3001
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
