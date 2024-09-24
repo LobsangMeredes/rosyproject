@@ -118,7 +118,14 @@ const ProductsTable: React.FC = () => {
           <Column field="id" header="ID" sortable></Column>
           <Column field="inventoryCode" header="Inventory Code" sortable></Column>
           <Column field="name" header="Name" sortable filter></Column>
-          <Column field="category.name" header="Category" sortable filter></Column> {/* Assuming category is an object */}
+          <Column
+            field="category.name"
+            header="Category"
+            sortable
+            filter
+            body={(rowData: Product) => rowData.category ? rowData.category.name : 'No Category'}
+          />
+
           <Column field="type" header="Type" sortable filter></Column>
           <Column field="gender" header="Gender" sortable filter></Column>
           <Column field="quantity" header="Total Quantity" sortable filter></Column>
