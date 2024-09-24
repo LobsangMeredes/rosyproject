@@ -14,7 +14,7 @@ interface Product {
   id: number;
   inventoryCode: string;
   name: string;
-  category: { name: string }; // Assuming 'category' is an object with 'name' property
+  category: string; // category is a string, not an object
   type: string;
   gender: string;
   quantity: number;
@@ -107,7 +107,7 @@ const ProductsTable: React.FC = () => {
           paginator
           rows={10}
           header={header}
-          globalFilterFields={['name', 'category.name', 'status', 'type', 'inventoryCode']} // Access 'category.name' for filtering
+          globalFilterFields={['name', 'category', 'status', 'type', 'inventoryCode']} // Adjusted 'category.name' to 'category'
           globalFilter={globalFilter}
           emptyMessage="No products found."
           className="datatable-responsive"
@@ -119,13 +119,11 @@ const ProductsTable: React.FC = () => {
           <Column field="inventoryCode" header="Inventory Code" sortable></Column>
           <Column field="name" header="Name" sortable filter></Column>
           <Column
-            field="category.name"
+            field="category"
             header="Category"
             sortable
-            filter
-            body={(rowData: Product) => rowData.category ? rowData.category.name : 'No Category'}
+            body={(rowData: Product) => rowData.category}  // Corrected here
           />
-
           <Column field="type" header="Type" sortable filter></Column>
           <Column field="gender" header="Gender" sortable filter></Column>
           <Column field="quantity" header="Total Quantity" sortable filter></Column>
