@@ -9,7 +9,7 @@ async function bootstrap() {
 
   // Habilitar CORS con la IP externa y otros dominios permitidos
   app.enableCors({
-    origin: ['http://34.41.100.138:3000', 'https://8b49-181-36-147-222.ngrok-free.app'], // Agregamos la IP del servidor
+    origin: ['http://34.41.100.138:3000', 'https://8b49-181-36-147-222.ngrok-free.app', 'http://localhost:3000'], // Agregamos la IP del servidor
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Permitir el uso de cookies/autenticación
   });
